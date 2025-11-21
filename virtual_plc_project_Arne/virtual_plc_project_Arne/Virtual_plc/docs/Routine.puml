@@ -1,0 +1,112 @@
+@startuml
+start
+
+:Initialize delay = 0;
+
+:Sleeping;
+
+if (Did I set an alarm?) then (Yes)
+  :Alarm rings;
+
+  if (Snooze?) then (Yes)
+    :Hit snooze (1st time);
+    :Sleep for 5 more minutes;
+    :delay = delay + 5 minutes;
+    :Alarm rings again;
+
+    if (Snooze again?) then (Yes)
+      :Hit snooze (2nd time);
+      :Sleep for 5 more minutes;
+      :delay = delay + 5 minutes;
+      :Alarm rings again;
+    endif
+  endif
+
+  :Turn off alarm;
+  :Get out of bed;
+
+else (No)
+  repeat
+    :Still sleeping;
+  repeat while (Am I still tired?)
+  :Wake up naturally;
+endif
+
+' --- NEW SECTION ---
+
+if (Do I need to go to the toilet?) then (Yes)
+  :Go to the toilet;
+  :delay = delay + 2 minutes;
+endif
+
+:Go to the kitchen;
+
+' --- Breakfast part (always happens) ---
+repeat
+  :Make breakfast item;
+  :Eat breakfast;
+repeat while (Still hungry?)
+:Breakfast finished;
+
+' --- Lunch part (optional / 4 topping selections) ---
+if (Do I need to make lunch?) then (Yes)
+  :Prepare bread;
+  :Set toppingCount = 0;
+
+  repeat
+    if (Want speculoos?) then (Yes)
+      if (Speculoos available?) then (Yes)
+        :Spread speculoos on bread;
+        :toppingCount = toppingCount + 1;
+      else (No)
+        :Choose another topping;
+      endif
+    elseif (Want chicken filet?)
+      if (Chicken filet available?) then (Yes)
+        :Add chicken filet to bread;
+        :toppingCount = toppingCount + 1;
+      else (No)
+        :Choose another topping;
+      endif
+    else (Want peanut butter?)
+      if (Peanut butter available?) then (Yes)
+        :Spread peanut butter on bread;
+        :toppingCount = toppingCount + 1;
+      else (No)
+        :Choose another topping;
+      endif
+    endif
+  repeat while (toppingCount < 4)
+
+  :Pack lunch;
+endif
+
+if (Do I need to go to the toilet?) then (Yes)
+  :Go to the toilet;
+  :delay = delay + 2 minutes;
+endif
+
+:Go to the garage;
+:Take bike;
+
+' --- Cycling traffic checks with delay ---
+if (Traffic light is red?) then (Yes)
+  :Stop and wait at traffic light;
+  :delay = delay + 2 minutes;
+endif
+
+if (Bridge is open?) then (Yes)
+  :Stop and wait at bridge;
+  :delay = delay + 5 minutes;
+endif
+
+:Cycle to train station;
+
+if (delay > 10 minutes?) then (Yes)
+  :Miss the train;
+  :Wait for next train;
+endif
+:take train;
+:arive a school;
+stop
+@enduml

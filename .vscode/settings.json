@@ -1,0 +1,9 @@
+{
+  // Use the public PlantUML server for previews (quick fix).
+  // Note: sending your diagrams to the public server may have privacy implications.
+  "plantuml.server": "https://www.plantuml.com/plantuml",
+  "plantuml.render": "PlantUMLServer",
+
+  // Optional: if you later want to use a local plantuml.jar, change
+  // "plantuml.render" to "PlantUMLJar" and set "plantuml.jar" to the jar path.
+}

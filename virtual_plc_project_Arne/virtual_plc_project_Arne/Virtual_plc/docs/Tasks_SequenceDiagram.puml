@@ -1,0 +1,19 @@
+@startuml Tasks_Communication
+title Tasks communication via GVL and AddTopping
+actor MorningRoutine as T1
+actor MonitorRoutine as T2
+participant GVL as G
+participant AddTopping as F
+
+T1 -> G: set Global_NeedLunch = TRUE
+T2 -> G: read Global_NeedLunch
+alt Global_NeedLunch == TRUE
+  T2 -> F: AddTopping(available, currentCount)
+  F --> T2: newCount
+  T2 -> G: write Global_ToppingCount = newCount
+end
+T1 -> F: AddTopping(...)
+F --> T1: newCount
+T1 -> G: write Global_ToppingCount = newCount
+T1 -> G: set Global_ProgramActive = FALSE
+@enduml

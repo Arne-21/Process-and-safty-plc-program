@@ -1,0 +1,10 @@
+@startuml Task2_MonitorRoutine
+' Task 2: MonitorRoutine state machine
+state Init
+state MonitorLoop
+
+[*] --> Init
+Init --> MonitorLoop : start
+MonitorLoop --> MonitorLoop : increment Global_SharedCounter / toggle blink
+MonitorLoop --> MonitorLoop : if Global_NeedLunch then call AddTopping()
+@enduml

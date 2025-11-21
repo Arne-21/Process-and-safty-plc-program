@@ -45,7 +45,7 @@ CASE currentState OF
         END_IF;
 
     40: // Lunch Preparation - call AddTopping function repeatedly
-        IF GVL.Global_NeedLunch THEN
+       (* IF GVL.Global_NeedLunch THEN
             WHILE GVL.Global_ToppingCount < 4 DO
                 // Try each topping using the reusable function
                 GVL.Global_ToppingCount := AddTopping(GVL.Global_SpeculoosAvailable, GVL.Global_ToppingCount);
@@ -61,6 +61,7 @@ CASE currentState OF
             // lunch prepared
             GVL.Global_NeedLunch := FALSE;
         END_IF;
+		*)
         currentState := 50;
 
     50: // Second Toilet Check
@@ -96,7 +97,9 @@ END_CASE;
 ]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
-      <LineId Id="43" Count="83" />
+      <LineId Id="43" Count="52" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="96" Count="30" />
       <LineId Id="129" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
