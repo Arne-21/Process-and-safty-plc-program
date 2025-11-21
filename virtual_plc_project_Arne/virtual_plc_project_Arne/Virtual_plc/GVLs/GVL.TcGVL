@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <GVL Name="GVL" Id="{ed47b473-7368-40f8-b818-ce840659a8dc}">
-    <Declaration><![CDATA[{attribute 'qualified_only'}
-VAR_GLOBAL
-	//global_counter : INT := 0;
-END_VAR]]></Declaration>
-  </GVL>
-</TcPlcObject>
