@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="ToiletStep" SpecialFunc="Function" Id="{d4f8a9b0-1111-4a2b-c111-abcdef000001}">
+    <Declaration><![CDATA[FUNCTION ToiletStep : BOOL
+VAR_INPUT
+    // input not required; the function will read GVL.Global_ToiletNeeded
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// If toilet is needed, perform the toilet step: add 2 minutes delay and clear the flag
+IF GVL.Global_ToiletNeeded THEN
+    GVL.Global_Delay := GVL.Global_Delay + T#2M;
+    GVL.Global_ToiletNeeded := FALSE;
+    ToiletStep := TRUE;
+ELSE
+    ToiletStep := FALSE;
+END_IF;
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

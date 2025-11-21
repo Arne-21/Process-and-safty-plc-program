@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="DELAYTRACKER" Id="{f6c8d7e4-3333-4c2c-e333-abcdef000003}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM DelayTracker
+VAR
+    state : INT := 0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// DelayTracker: acts on delay-causing conditions and performs toilet visits via ToiletStep()
+CASE state OF
+    0:
+        // initialize
+        state := 10;
+
+    10: // perform toilet step if needed
+        IF ToiletStep() THEN
+            // toilet handled inside function
+        END_IF;
+        state := 20;
+
+    20: // traffic light
+        IF GVL.Global_TrafficLightRed THEN
+            GVL.Global_Delay := GVL.Global_Delay + T#2M;
+        END_IF;
+        state := 30;
+
+    30: // bridge
+        IF GVL.Global_BridgeOpen THEN
+            GVL.Global_Delay := GVL.Global_Delay + T#5M;
+        END_IF;
+        state := 40;
+
+    40: // train check
+        IF GVL.Global_Delay > T#10M THEN
+            // missed train -> wait
+            GVL.Global_Delay := GVL.Global_Delay + T#30M;
+        END_IF;
+        state := 10; // loop
+END_CASE;
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
