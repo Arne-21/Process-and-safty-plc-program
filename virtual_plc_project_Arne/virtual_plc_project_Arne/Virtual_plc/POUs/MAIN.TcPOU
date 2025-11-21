@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="MAIN" Id="{074e3488-9984-4e9d-a106-00737da1eebc}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MorningRoutine
+VAR
+    // Local state variable for the state machine
+    currentState : INT := 0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// State machine implementation using shared GVL variables and calling AddTopping()
+CASE currentState OF
+    0: // Initialize
+        GVL.Global_Delay := T#0S;
+        currentState := 10;
+
+    10: // Sleeping and Alarm Check
+        IF GVL.Global_AlarmSet THEN
+            IF GVL.Global_SnoozeCount < 2 AND GVL.Global_StillTired THEN
+                GVL.Global_Delay := GVL.Global_Delay + T#5M;
+                GVL.Global_SnoozeCount := GVL.Global_SnoozeCount + 1;
+            ELSE
+                currentState := 20;  // Wake up
+            END_IF
+        ELSE
+            IF NOT GVL.Global_StillTired THEN
+                currentState := 20;  // Natural wake up
+            END_IF
+        END_IF;
+
+    20: // First Toilet Check
+        IF GVL.Global_ToiletNeeded THEN
+            GVL.Global_Delay := GVL.Global_Delay + T#2M;
+        END_IF;
+        currentState := 30;
+
+    30: // Breakfast Loop
+        IF GVL.Global_IsHungry THEN
+            // Simulate eating breakfast (one-time action)
+            GVL.Global_IsHungry := FALSE;
+            // Set lunch requirement as example
+            GVL.Global_NeedLunch := TRUE;
+        ELSE
+            currentState := 40;
+        END_IF;
+
+    40: // Lunch Preparation - call AddTopping function repeatedly
+        IF GVL.Global_NeedLunch THEN
+            WHILE GVL.Global_ToppingCount < 4 DO
+                // Try each topping using the reusable function
+                GVL.Global_ToppingCount := AddTopping(GVL.Global_SpeculoosAvailable, GVL.Global_ToppingCount);
+                IF GVL.Global_ToppingCount >= 4 THEN
+                    EXIT; // enough toppings
+                END_IF;
+                GVL.Global_ToppingCount := AddTopping(GVL.Global_ChickenFiletAvailable, GVL.Global_ToppingCount);
+                IF GVL.Global_ToppingCount >= 4 THEN
+                    EXIT;
+                END_IF;
+                GVL.Global_ToppingCount := AddTopping(GVL.Global_PeanutButterAvailable, GVL.Global_ToppingCount);
+            END_WHILE;
+            // lunch prepared
+            GVL.Global_NeedLunch := FALSE;
+        END_IF;
+        currentState := 50;
+
+    50: // Second Toilet Check
+        IF GVL.Global_ToiletNeeded THEN
+            GVL.Global_Delay := GVL.Global_Delay + T#2M;
+        END_IF;
+        currentState := 60;
+
+    60: // Transport and Traffic
+        // Traffic light check
+        IF GVL.Global_TrafficLightRed THEN
+            GVL.Global_Delay := GVL.Global_Delay + T#2M;
+        END_IF;
+
+        // Bridge check
+        IF GVL.Global_BridgeOpen THEN
+            GVL.Global_Delay := GVL.Global_Delay + T#5M;
+        END_IF;
+
+        currentState := 70;
+
+    70: // Train Check
+        IF GVL.Global_Delay > T#10M THEN
+            // Missed train, wait for next one
+            GVL.Global_Delay := GVL.Global_Delay + T#30M;
+        END_IF;
+        currentState := 80;
+
+    80: // Arrived at School
+        GVL.Global_ProgramActive := FALSE;
+END_CASE;
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="43" Count="83" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="MONITOR" Id="{b2f9d8c2-2222-4f2a-b222-abcdef123456}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MonitorRoutine
+VAR
+    // Local state for monitor task
+    monitorState : INT := 0;
+    blink : BOOL := FALSE; // example internal flag
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// A small independent task that monitors and updates shared GVL variables
+CASE monitorState OF
+    0: // initialize
+        GVL.Global_SharedCounter := 0;
+        monitorState := 10;
+
+    10: // Regular activity: increment shared counter and toggle blink
+        GVL.Global_SharedCounter := GVL.Global_SharedCounter + 1;
+        blink := NOT blink;
+
+        // If lunch not prepared, try to add toppings (calls function)
+        IF GVL.Global_NeedLunch THEN
+            GVL.Global_ToppingCount := AddTopping(GVL.Global_SpeculoosAvailable, GVL.Global_ToppingCount);
+            IF GVL.Global_ToppingCount < 4 THEN
+                GVL.Global_ToppingCount := AddTopping(GVL.Global_ChickenFiletAvailable, GVL.Global_ToppingCount);
+            END_IF;
+        END_IF;
+
+        // Example: if shared counter reaches a threshold, toggle an example condition
+        IF GVL.Global_SharedCounter > 50 THEN
+            GVL.Global_TrafficLightRed := NOT GVL.Global_TrafficLightRed;
+            GVL.Global_SharedCounter := 0; // reset for demo
+        END_IF;
+
+        // keep running
+        monitorState := 10;
+END_CASE;
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
