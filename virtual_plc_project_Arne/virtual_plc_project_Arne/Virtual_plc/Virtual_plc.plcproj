@@ -18,9 +18,6 @@
     <LibraryReferences>{976f4e23-3f9b-4971-93e2-9fca06717353}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="EventTask.TcTTO">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="GVLs\GVL.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
@@ -28,7 +25,13 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\MAIN.TcPOU">
+    <Compile Include="POUs\Step.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Task_1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Taks_2.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

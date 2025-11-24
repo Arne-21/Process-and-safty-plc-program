@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="Task_1" Id="{074e3488-9984-4e9d-a106-00737da1eebc}" SpecialFunc="None">
+    <Declaration><![CDATA[// MAIN was replaced by EventTracker and DelayTracker
+PROGRAM Task_1
+VAR
+    CurrentStep      : Step := sleeping;
+
+    (* Alarm & Sleep *)
+    AlarmSet          : BOOL := TRUE;
+    Snooze1Wanted     : BOOL := TRUE;
+    Snooze2Wanted     : BOOL := FALSE;
+    StillTired        : BOOL := FALSE;
+
+    (* Toilet choices *)
+    ToiletMorning1    : BOOL := TRUE;
+    ToiletMorning2    : BOOL := FALSE;
+
+    (* Breakfast *)
+    StillHungry       : BOOL := TRUE;
+    BreakfastCount    : INT := 0;
+
+    (* Lunch *)
+    MakeLunch         : BOOL := TRUE;
+    WantSpeculoos     : BOOL := TRUE;
+    WantChickenFilet  : BOOL := FALSE;
+    WantPeanutButter  : BOOL := FALSE;
+
+    SpeculoosAvail    : BOOL := TRUE;
+    ChickenAvail      : BOOL := TRUE;
+    PeanutAvail       : BOOL := TRUE;
+
+    ToppingCount      : INT := 0;
+
+    (* Cycling *)
+    TrafficLightRed   : BOOL := TRUE;
+    BridgeOpen        : BOOL := FALSE;
+
+    (* Delay tracking *)
+    DelayMinutes      : INT := 0;
+    TrainDelayLimit   : INT := 10;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE CurrentStep OF
+
+(* --------------------------- SLEEPING --------------------------- *)
+sleeping:
+    IF AlarmSet THEN
+        CurrentStep := alarm;
+    ELSE
+        IF StillTired THEN
+            DelayMinutes := DelayMinutes + 5;   (* Natural oversleeping adds delay *)
+        ELSE
+            CurrentStep := wake;
+        END_IF
+    END_IF
+
+(* --------------------------- ALARM --------------------------- *)
+alarm:
+    IF Snooze1Wanted THEN
+        CurrentStep := snooze1;
+    ELSE
+        CurrentStep := wake;
+    END_IF
+
+(* --------------------------- SNOOZE 1 --------------------------- *)
+snooze1:
+    DelayMinutes := DelayMinutes + 5;
+    IF Snooze2Wanted THEN
+        CurrentStep := snooze2;
+    ELSE
+        CurrentStep := wake;
+    END_IF
+
+(* --------------------------- SNOOZE 2 --------------------------- *)
+snooze2:
+    DelayMinutes := DelayMinutes + 5;
+    CurrentStep := wake;
+
+(* --------------------------- WAKE --------------------------- *)
+wake:
+    IF ToiletMorning1 THEN
+        CurrentStep := toilet1;
+    ELSE
+        CurrentStep := kitchen;
+    END_IF
+
+(* --------------------------- FIRST TOILET --------------------------- *)
+toilet1:
+    DelayMinutes := DelayMinutes + 2;
+    CurrentStep := kitchen;
+
+(* --------------------------- ENTER KITCHEN --------------------------- *)
+kitchen:
+    BreakfastCount := 0;
+    CurrentStep := breakfast;
+
+(* --------------------------- BREAKFAST LOOP --------------------------- *)
+breakfast:
+    IF StillHungry THEN
+        BreakfastCount := BreakfastCount + 1;
+        (* In simulatie: stop honger hier, of laat het doorlopen voor een langere lus *)
+        StillHungry := FALSE;
+    ELSE
+        CurrentStep := lunch;
+    END_IF
+
+(* --------------------------- LUNCH PREPARATION --------------------------- *)
+lunch:
+    IF MakeLunch THEN
+
+        IF ToppingCount < 4 THEN
+
+            IF WantSpeculoos THEN
+                IF SpeculoosAvail THEN
+                    ToppingCount := ToppingCount + 1;
+                END_IF
+
+            ELSIF WantChickenFilet THEN
+                IF ChickenAvail THEN
+                    ToppingCount := ToppingCount + 1;
+                END_IF
+
+            ELSIF WantPeanutButter THEN
+                IF PeanutAvail THEN
+                    ToppingCount := ToppingCount + 1;
+                END_IF
+
+            END_IF
+
+        ELSE
+            CurrentStep := toilet2; (* lunch packed *)
+        END_IF
+
+    ELSE
+        CurrentStep := toilet2;
+    END_IF
+
+(* --------------------------- SECOND TOILET --------------------------- *)
+toilet2:
+    IF ToiletMorning2 THEN
+        DelayMinutes := DelayMinutes + 2;
+    END_IF
+
+    CurrentStep := garage;
+
+(* --------------------------- GARAGE --------------------------- *)
+garage:
+    CurrentStep := cycling;
+
+(* --------------------------- CYCLING --------------------------- *)
+cycling:
+    IF TrafficLightRed THEN
+        DelayMinutes := DelayMinutes + 2;
+    END_IF
+
+    IF BridgeOpen THEN
+        DelayMinutes := DelayMinutes + 5;
+    END_IF
+
+    CurrentStep := train_check;
+
+(* --------------------------- TRAIN CHECK --------------------------- *)
+train_check:
+    IF DelayMinutes > TrainDelayLimit THEN
+        (* Missed the train, but simulation ends here anyway *)
+    END_IF
+
+    CurrentStep := done;
+
+(* --------------------------- DONE --------------------------- *)
+done:
+    (* Simulation finished *)
+    ;
+
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="Task_1">
+      <LineId Id="252" Count="131" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

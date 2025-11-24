@@ -4,26 +4,10 @@
     <!--CycleTime in micro seconds.-->
     <CycleTime>10000</CycleTime>
     <Priority>20</Priority>
-    <PouCall>
-      <Name>EventTracker</Name>
-    </PouCall>
     <TaskFBGuid>{232f7099-10ec-4be5-a17b-7efd94a98009}</TaskFBGuid>
     <Fb_init>{8c0d234d-fa6c-4527-a8d5-a070ce2d4791}</Fb_init>
     <Fb_exit>{f1ec1f56-d0b4-4548-ae72-deaff95532fa}</Fb_exit>
     <CycleUpdate>{9cc8ce52-78b3-4729-b060-dac6df94617c}</CycleUpdate>
     <PostCycleUpdate>{3ee3097e-3750-4167-bcfa-993f7c01e24e}</PostCycleUpdate>
-  </Task>
-  <Task Name="DelayTask" Id="{99aabbcc-3333-4444-5555-0123456789ab}">
-    <!--CycleTime in micro seconds.-->
-    <CycleTime>20000</CycleTime>
-    <Priority>10</Priority>
-    <PouCall>
-      <Name>DelayTracker</Name>
-    </PouCall>
-    <TaskFBGuid>{00000000-0000-0000-0000-000000000000}</TaskFBGuid>
-    <Fb_init>{00000000-0000-0000-0000-000000000000}</Fb_init>
-    <Fb_exit>{00000000-0000-0000-0000-000000000000}</Fb_exit>
-    <CycleUpdate>{00000000-0000-0000-0000-000000000000}</CycleUpdate>
-    <PostCycleUpdate>{00000000-0000-0000-0000-000000000000}</PostCycleUpdate>
   </Task>
 </TcPlcObject>
