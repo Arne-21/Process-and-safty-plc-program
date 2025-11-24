@@ -26,6 +26,9 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Wait.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Step.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -33,6 +36,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Taks_2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TASK_2.TcTTO">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

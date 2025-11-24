@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="Wait" Id="{c6ca6f8d-7df5-4b31-aba1-c53ed20e65c8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Wait
+VAR_OUTPUT
+    Klaar : BOOL := FALSE;     // wordt TRUE na 5 seconden
+END_VAR
+
+VAR
+    Tmr : TON;                 // interne timer
+    Running : BOOL := FALSE;   // onthoudt of timer al gestart is
+	flase: BOOL;
+	done: BOOL;
+	test: int;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Timer automatisch starten zodra FB wordt opgeroepen
+Tmr(IN := TRUE, PT := T#5S);
+IF Done = TRUE THEN
+klaar := FALSE;
+tmr(IN := FALSE);
+Done := FALSE;
+END_IF
+IF Tmr.Q THEN
+	done := TRUE;
+	klaar := TRUE;
+END_IF
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="Wait">
+      <LineId Id="91" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
