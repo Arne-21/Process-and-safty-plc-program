@@ -1,0 +1,110 @@
+@startuml
+actor You
+
+participant Alarm
+participant Sleep
+participant Toilet
+participant Kitchen
+participant Breakfast
+participant Lunch
+participant Toppings
+participant Garage
+participant Bike
+participant TrafficLight
+participant Bridge
+participant Train
+
+You -> Sleep: Sleep
+alt Alarm set
+  Alarm -> You: Alarm rings
+  alt Snooze (1)
+    You -> Sleep: Snooze 5 min
+    Sleep --> You: Wakes again
+    alt Snooze (2)
+      You -> Sleep: Snooze 5 min
+      Sleep --> You: Wakes again
+    end
+  end
+  You -> Alarm: Turn off alarm
+else No alarm\n(Natural wake-up)
+  loop Still tired
+    You -> Sleep: Sleep longer (adds delay)
+  end
+end
+
+You -> Toilet: Go to toilet? (optional)
+Toilet --> You: Finished
+
+You -> Kitchen: Go to kitchen
+
+== BREAKFAST ==
+loop Still hungry
+  You -> Breakfast: Make breakfast item
+  Breakfast --> You: Eat
+end
+
+== LUNCH ==
+alt Need to make lunch
+  You -> Lunch: Prepare bread
+  activate Lunch
+  loop 4 toppings
+    You -> Toppings: Choose topping
+    alt Speculoos
+      Toppings -> Toppings: Check availability
+      alt Available
+        Toppings --> Lunch: Add speculoos
+      else Not available
+        Toppings --> You: Choose another
+      end
+    else Chicken filet
+      Toppings -> Toppings: Check availability
+      alt Available
+        Toppings --> Lunch: Add chicken filet
+      else Not available
+        Toppings --> You: Choose another
+      end
+    else Peanut butter
+      Toppings -> Toppings: Check availability
+      alt Available
+        Toppings --> Lunch: Add peanut butter
+      else Not available
+        Toppings --> You: Choose another
+      end
+    end
+  end
+  deactivate Lunch
+  You -> Lunch: Pack lunch
+end
+
+You -> Toilet: Go to toilet? (optional)
+Toilet --> You: Finished
+
+== GO TO TRAIN ==
+You -> Garage: Go to garage
+Garage --> You: Get bike
+
+You -> Bike: Start cycling
+
+== TRAFFIC EFFECT ON DELAY ==
+alt Traffic light red
+  Bike -> TrafficLight: Check color
+  TrafficLight --> Bike: Red
+  You -> Bike: Wait (delay +2)
+end
+
+alt Bridge open
+  Bike -> Bridge: Check status
+  Bridge --> Bike: Open
+  You -> Bike: Wait (delay +5)
+end
+
+You -> Train: Arrive at station
+
+alt delay > 10 minutes
+  Train --> You: Missed the train
+  You -> Train: Wait for next train
+else On time
+  Train --> You: Board train
+end
+
+@enduml
