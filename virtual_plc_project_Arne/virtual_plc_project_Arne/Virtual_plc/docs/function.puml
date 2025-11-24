@@ -1,0 +1,20 @@
+@startuml
+title Sequence – Task_1 calling Wait()
+
+participant "Task_1" as T
+participant "Wait()" as W
+
+== Wait wordt aangeroepen ==
+
+T -> W : Wait()
+
+note right of W
+  Timer start intern
+  (5s wachten)
+end note
+
+... 5 seconds later ...
+
+W --> T : Klaar = TRUE
+
+@enduml
