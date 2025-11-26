@@ -3,8 +3,11 @@
   <GVL Name="GVL" Id="{ed47b473-7368-40f8-b818-ce840659a8dc}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
-    Delay : INT := 0;              // totale vertraging
+	//start amount of needs
 	need_1 : INT := 10;
+	need_2 : INT := 30;
+	
+	Awake : BOOL := FALSE;
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

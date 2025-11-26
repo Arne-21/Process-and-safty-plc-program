@@ -2,6 +2,7 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <DUT Name="Step" Id="{90e539c1-ea84-415e-b8f1-43acda1eeca4}">
     <Declaration><![CDATA[TYPE Step :
+//ALl the case steps
 (
 	sleeping, 
 	alarm, 

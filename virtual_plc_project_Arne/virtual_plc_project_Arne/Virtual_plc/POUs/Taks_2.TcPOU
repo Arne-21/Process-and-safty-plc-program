@@ -3,29 +3,33 @@
   <POU Name="Taks_2" Id="{3f954ceb-7654-4c46-82ae-7c4cd977fac6}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Taks_2
 VAR
-	need: INT;
-	timer: TON;	
-	Wait5s: Wait;
+	need_1_timer: TON;
+	need_2_timer: TON;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[//GVL.need_1 := 0;
-IF GVL.need_1 < 100 THEN
-	timer(IN := TRUE, PT := T#1S);
-	IF timer.Q = TRUE THEN
-		gvl.need_1 := gvl.need_1+1;	
-		timer(IN := FALSE);
-	END_IF
+      <ST><![CDATA[//Increse need_1 over time
+Need_1_timer(IN := TRUE, PT := T#1S);
+IF Need_1_timer.Q = TRUE AND GVL.need_1 < 100 THEN
+	gvl.need_1 := gvl.need_1 + 1;	
+	Need_1_timer(IN := FALSE);
+END_IF
+// Decrese nee_2 over time
+need_2_timer(IN := TRUE, PT := T#0.5S);
+IF Need_2_timer.Q = TRUE AND GVL.need_2 > 0 AND Gvl.Awake = FALSE THEN
+	gvl.need_2 := gvl.need_2 - 1;	
+	Need_2_timer(IN := FALSE);
 END_IF]]></ST>
     </Implementation>
     <LineIds Name="Taks_2">
-      <LineId Id="56" Count="0" />
-      <LineId Id="53" Count="0" />
+      <LineId Id="80" Count="0" />
       <LineId Id="32" Count="0" />
       <LineId Id="35" Count="0" />
       <LineId Id="37" Count="1" />
       <LineId Id="5" Count="0" />
-      <LineId Id="54" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="67" Count="3" />
     </LineIds>
   </POU>
 </TcPlcObject>

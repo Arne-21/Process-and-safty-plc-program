@@ -3,23 +3,23 @@
   <POU Name="Wait" Id="{c6ca6f8d-7df5-4b31-aba1-c53ed20e65c8}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK Wait
 VAR_OUTPUT
-    Klaar : BOOL := FALSE;     // wordt TRUE na 5 seconden
+    Klaar 	: BOOL 	:= FALSE;
 END_VAR
 
 VAR
-    Tmr : TON;                 // interne timer
-    Running : BOOL := FALSE;   // onthoudt of timer al gestart is
-	flase: BOOL;
-	done: BOOL;
-	test: int;
+    Tmr 	: TON;
+    Running : BOOL 	:= FALSE;
+	flase	: BOOL;
+	done	: BOOL;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// Timer automatisch starten zodra FB wordt opgeroepen
+      <ST><![CDATA[// Timer automatisch starten zodra FB wordt opgeroepen en wacht 5s tot klaar = true
+
 Tmr(IN := TRUE, PT := T#5S);
 IF Done = TRUE THEN
-klaar := FALSE;
-tmr(IN := FALSE);
-Done := FALSE;
+	klaar := FALSE;
+	tmr(IN := FALSE);
+	Done := FALSE;
 END_IF
 IF Tmr.Q THEN
 	done := TRUE;
@@ -30,6 +30,7 @@ END_IF
     </Implementation>
     <LineIds Name="Wait">
       <LineId Id="91" Count="0" />
+      <LineId Id="136" Count="0" />
       <LineId Id="121" Count="0" />
       <LineId Id="93" Count="0" />
       <LineId Id="124" Count="0" />

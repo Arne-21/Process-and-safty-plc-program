@@ -1,73 +1,85 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="Task_1" Id="{074e3488-9984-4e9d-a106-00737da1eebc}" SpecialFunc="None">
-    <Declaration><![CDATA[// MAIN was replaced by EventTracker and DelayTracker
-PROGRAM Task_1
+    <Declaration><![CDATA[PROGRAM Task_1
 VAR
+	(* step *)
 	CurrentStep : step := sleeping;
-    (* Alarm & Sleep *)
-    AlarmSet          : BOOL := TRUE;
-    Snooze1Wanted     : BOOL := TRUE;
-    Snooze2Wanted     : BOOL := FALSE;
-    StillTired        : BOOL := FALSE;
-
-    (* Toilet choices *)
-    ToiletMorning1    : BOOL := FALSE;
-	geweest			:Bool := False;
-    ToiletMorning2    : BOOL := FALSE;
 	
+    (* Alarm option*)
+    AlarmSet          : BOOL 	:= TRUE;
 
-    (* Breakfast *)
-    StillHungry       : BOOL := TRUE;
-    BreakfastCount    : INT := 0;
+    (* Lunch options*)
+    MakeLunch         : BOOL 	:= TRUE;
+    WantSpeculoos     : BOOL 	:= TRUE;
+    WantChickenFilet  : BOOL 	:= FALSE;
+    WantPeanutButter  : BOOL 	:= TRUE;
+    SpeculoosAvail    : BOOL 	:= TRUE;
+    ChickenAvail      : BOOL 	:= TRUE;
+    PeanutAvail       : BOOL 	:= TRUE;
 
-    (* Lunch *)
-    MakeLunch         : BOOL := TRUE;
-    WantSpeculoos     : BOOL := TRUE;
-    WantChickenFilet  : BOOL := FALSE;
-    WantPeanutButter  : BOOL := FALSE;
-
-    SpeculoosAvail    : BOOL := TRUE;
-    ChickenAvail      : BOOL := TRUE;
-    PeanutAvail       : BOOL := TRUE;
-
-    ToppingCount      : INT := 0;
-
-    (* Cycling *)
-    TrafficLightRed   : BOOL := TRUE;
-    BridgeOpen        : BOOL := FALSE;
+    (* Cycling options*)
+    TrafficLightRed   : BOOL 	:= TRUE;
+    BridgeOpen        : BOOL 	:= FALSE;
 
     (* Delay tracking *)
-    DelayMinutes      : INT := 0;
-    TrainDelayLimit   : INT := 10;
+    DelayMinutes      : INT 	:= 0;
+    TrainDelayLimit   : INT 	:= 10;
+	misstrain		  : BOOL 	:= FALSE;
+	
+	(*varibles*)
+	StillTired        : BOOL 	:= TRUE;
+	geweest			  : BOOL 	:= FALSE;
+	ToiletMorning1    : BOOL 	:= FALSE;
+    ToiletMorning2    : BOOL 	:= FALSE;
+	StillHungry       : BOOL 	:= TRUE;
+	ToppingCount      : INT 	:= 0;
+    BreakfastCount    : INT 	:= 0;
+	(* FB *)
 	Wait : Wait;
 END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[//Currentstep := sleeping;
+      <ST><![CDATA[(* need changes*)
+//tired need
+IF gvl.need_2 < 20 THEN
+	Stilltired := FALSE;
+END_IF
+//toilet need
 IF gvl.need_1 > 50 THEN
 	ToiletMorning1 := TRUE;
 	ELSIF gvl.need_1 > 50 AND geweest = FALSE THEN
 	ToiletMorning2 := TRUE;
 END_IF
+//hungry
+IF BreakfastCount >2 THEN
+	StillHungry := FALSE;
+END_IF
 
+//always wants somting for lunch
+IF NOT WantSpeculoos AND NOT WantChickenFilet AND NOT WantPeanutButter THEN
+	IF SpeculoosAvail THEN
+		WantSpeculoos := TRUE;
+	END_IF
+END_IF
 
-
-
+(* routine*)
 CASE CurrentStep OF
 
 (* --------------------------- SLEEPING --------------------------- *)
 sleeping:
+//alarm on or off
     IF AlarmSet THEN
 		Wait();
 		IF wait.Klaar = TRUE THEN
 			CurrentStep := alarm;
 		END_IF    
     ELSE
+//alarm off natural waking
         IF StillTired THEN
-            GVL.Delay := GVL.Delay + 5;
-			stillTired := FALSE;
+            Delayminutes := Delayminutes + 5;
+			gvl.need_2 := gvl.need_2 - 10;
         ELSE
 			Wait();
 			IF wait.Klaar = TRUE THEN
@@ -78,9 +90,12 @@ sleeping:
 
 (* --------------------------- ALARM --------------------------- *)
 alarm:
-    IF Snooze1Wanted THEN
+//snooze or wake 1
+    IF Stilltired THEN 
 		Wait();
 		IF wait.Klaar = TRUE THEN
+			DelayMinutes := DelayMinutes + 5;
+			gvl.need_2 := gvl.need_2 - 5;
 			CurrentStep := snooze1;
 		END_IF 
     ELSE
@@ -89,10 +104,12 @@ alarm:
 
 (* --------------------------- SNOOZE 1 --------------------------- *)
 snooze1:
-    DelayMinutes := DelayMinutes + 5;
-    IF Snooze2Wanted THEN
+//snooze or wake 2
+    IF Stilltired THEN
 	Wait();
 	IF wait.Klaar = TRUE THEN
+		DelayMinutes := DelayMinutes + 5;
+		gvl.need_2 := gvl.need_2 - 5;
 		CurrentStep := snooze2;
 	END_IF 
     ELSE
@@ -101,11 +118,15 @@ snooze1:
 
 (* --------------------------- SNOOZE 2 --------------------------- *)
 snooze2:
-    DelayMinutes := DelayMinutes + 5;
-    CurrentStep := wake;
-
+    wait();
+	IF wait.klaar THEN
+		CurrentStep := wake;
+	END_IF
+    
 (* --------------------------- WAKE --------------------------- *)
 wake:
+	gvl.Awake := TRUE;
+//toilet choise
     IF ToiletMorning1 THEN
         CurrentStep := toilet1;
     ELSE
@@ -114,6 +135,7 @@ wake:
 
 (* --------------------------- FIRST TOILET --------------------------- *)
 toilet1:
+//toilet routine
 	IF ToiletMorning1 = TRUE THEN
 		DelayMinutes := DelayMinutes + 2;
 		gvl.need_1 := 0;
@@ -129,69 +151,76 @@ toilet1:
     
 (* --------------------------- ENTER KITCHEN --------------------------- *)
 kitchen:
+//set breakfeast
     BreakfastCount := 0;
     CurrentStep := breakfast;
 
 (* --------------------------- BREAKFAST LOOP --------------------------- *)
 breakfast:
+//breakfast time
     IF StillHungry THEN
         BreakfastCount := BreakfastCount + 1;
-        StillHungry := FALSE;
+		Delayminutes := delayminutes + 1;
     ELSE
+		//set lunch
+		toppingcount := 0;
         CurrentStep := lunch;
     END_IF
 
 (* --------------------------- LUNCH PREPARATION --------------------------- *)
 lunch:
+	//choose if lunch needed
     IF MakeLunch THEN
-
+		//make amount
         IF ToppingCount < 4 THEN
-
+			//want
             IF WantSpeculoos THEN
+				//avaliblity
                 IF SpeculoosAvail THEN
                     ToppingCount := ToppingCount + 1;
                 END_IF
-
             ELSIF WantChickenFilet THEN
                 IF ChickenAvail THEN
                     ToppingCount := ToppingCount + 1;
                 END_IF
-
             ELSIF WantPeanutButter THEN
                 IF PeanutAvail THEN
                     ToppingCount := ToppingCount + 1;
                 END_IF
-
+			ELSE
+				//buy lunch
+				toppingcount := toppingcount + 4;
             END_IF
-
         ELSE
-            CurrentStep := toilet2; (* lunch packed *)
+            CurrentStep := toilet2;
         END_IF
-
     ELSE
         CurrentStep := toilet2;
     END_IF
 
 (* --------------------------- SECOND TOILET --------------------------- *)
 toilet2:
-    	IF ToiletMorning2 = TRUE THEN
-		 DelayMinutes := DelayMinutes + 2;
-		 gvl.need_1 := 0;
+	//check toilet need
+	IF ToiletMorning2 = TRUE THEN
+		DelayMinutes := DelayMinutes + 2;
+		gvl.need_1 := 0;
 		Wait();
 		IF wait.Klaar = TRUE THEN
-		CurrentStep := garage;
+			CurrentStep := garage;
 		END_IF
-		ELSE
+	ELSE
 		CurrentStep := garage;
 	END_IF
 (* --------------------------- GARAGE --------------------------- *)
 garage:
+	wait();
 	IF wait.Klaar = TRUE THEN
 		CurrentStep := cycling;
 	END_IF   
 
 (* --------------------------- CYCLING --------------------------- *)
 cycling:
+	//travel delay
     IF TrafficLightRed THEN
         DelayMinutes := DelayMinutes + 2;
     END_IF
@@ -199,45 +228,79 @@ cycling:
     IF BridgeOpen THEN
         DelayMinutes := DelayMinutes + 5;
     END_IF
-
+	//set train check
+	Misstrain := FALSE;
     CurrentStep := train_check;
 
 (* --------------------------- TRAIN CHECK --------------------------- *)
 train_check:
-    IF DelayMinutes > TrainDelayLimit THEN
-        (* Missed the train, but simulation ends here anyway *)
+	// check train miss
+    IF DelayMinutes > TrainDelayLimit AND misstrain = FALSE THEN
+		DelayMinutes := delayminutes + 30;
+		misstrain := TRUE;
     END_IF
-
     CurrentStep := done;
 
 (* --------------------------- DONE --------------------------- *)
 done:
-    (* Simulation finished *)
+    //Simulation finished
     ;
 
 END_CASE]]></ST>
     </Implementation>
     <LineIds Name="Task_1">
       <LineId Id="457" Count="0" />
+      <LineId Id="577" Count="2" />
+      <LineId Id="576" Count="0" />
+      <LineId Id="575" Count="0" />
       <LineId Id="464" Count="1" />
       <LineId Id="467" Count="1" />
       <LineId Id="466" Count="0" />
-      <LineId Id="460" Count="0" />
-      <LineId Id="462" Count="1" />
+      <LineId Id="554" Count="0" />
+      <LineId Id="553" Count="0" />
+      <LineId Id="649" Count="0" />
+      <LineId Id="556" Count="0" />
+      <LineId Id="605" Count="0" />
+      <LineId Id="602" Count="0" />
+      <LineId Id="601" Count="0" />
+      <LineId Id="603" Count="0" />
+      <LineId Id="606" Count="1" />
+      <LineId Id="604" Count="0" />
+      <LineId Id="580" Count="0" />
       <LineId Id="459" Count="0" />
-      <LineId Id="252" Count="4" />
+      <LineId Id="252" Count="3" />
+      <LineId Id="581" Count="0" />
+      <LineId Id="256" Count="0" />
       <LineId Id="454" Count="2" />
       <LineId Id="453" Count="0" />
-      <LineId Id="258" Count="2" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="582" Count="0" />
+      <LineId Id="259" Count="1" />
       <LineId Id="452" Count="0" />
       <LineId Id="261" Count="0" />
       <LineId Id="448" Count="3" />
-      <LineId Id="263" Count="5" />
-      <LineId Id="480" Count="2" />
+      <LineId Id="263" Count="4" />
+      <LineId Id="583" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="480" Count="1" />
+      <LineId Id="546" Count="1" />
+      <LineId Id="482" Count="0" />
       <LineId Id="479" Count="0" />
-      <LineId Id="270" Count="7" />
-      <LineId Id="484" Count="3" />
-      <LineId Id="279" Count="19" />
+      <LineId Id="270" Count="5" />
+      <LineId Id="584" Count="0" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="484" Count="1" />
+      <LineId Id="548" Count="1" />
+      <LineId Id="486" Count="1" />
+      <LineId Id="279" Count="6" />
+      <LineId Id="550" Count="2" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="288" Count="1" />
+      <LineId Id="600" Count="0" />
+      <LineId Id="586" Count="0" />
+      <LineId Id="290" Count="7" />
+      <LineId Id="587" Count="0" />
+      <LineId Id="298" Count="0" />
       <LineId Id="438" Count="0" />
       <LineId Id="475" Count="0" />
       <LineId Id="472" Count="0" />
@@ -249,8 +312,32 @@ END_CASE]]></ST>
       <LineId Id="439" Count="0" />
       <LineId Id="437" Count="0" />
       <LineId Id="299" Count="0" />
-      <LineId Id="301" Count="8" />
-      <LineId Id="311" Count="37" />
+      <LineId Id="301" Count="1" />
+      <LineId Id="588" Count="0" />
+      <LineId Id="303" Count="4" />
+      <LineId Id="589" Count="0" />
+      <LineId Id="308" Count="1" />
+      <LineId Id="311" Count="1" />
+      <LineId Id="590" Count="0" />
+      <LineId Id="557" Count="0" />
+      <LineId Id="313" Count="4" />
+      <LineId Id="591" Count="0" />
+      <LineId Id="318" Count="0" />
+      <LineId Id="592" Count="0" />
+      <LineId Id="320" Count="0" />
+      <LineId Id="593" Count="0" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="594" Count="0" />
+      <LineId Id="323" Count="2" />
+      <LineId Id="327" Count="3" />
+      <LineId Id="332" Count="3" />
+      <LineId Id="653" Count="0" />
+      <LineId Id="655" Count="0" />
+      <LineId Id="654" Count="0" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="339" Count="2" />
+      <LineId Id="343" Count="5" />
+      <LineId Id="595" Count="0" />
       <LineId Id="477" Count="0" />
       <LineId Id="444" Count="0" />
       <LineId Id="478" Count="0" />
@@ -259,9 +346,19 @@ END_CASE]]></ST>
       <LineId Id="446" Count="1" />
       <LineId Id="351" Count="0" />
       <LineId Id="355" Count="1" />
+      <LineId Id="596" Count="0" />
       <LineId Id="498" Count="1" />
       <LineId Id="497" Count="0" />
-      <LineId Id="358" Count="25" />
+      <LineId Id="358" Count="2" />
+      <LineId Id="597" Count="0" />
+      <LineId Id="361" Count="6" />
+      <LineId Id="598" Count="0" />
+      <LineId Id="368" Count="4" />
+      <LineId Id="599" Count="0" />
+      <LineId Id="373" Count="1" />
+      <LineId Id="543" Count="0" />
+      <LineId Id="375" Count="0" />
+      <LineId Id="377" Count="6" />
       <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
